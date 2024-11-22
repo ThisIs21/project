@@ -1,34 +1,90 @@
-<?php include 'config.php'; ?>
-
-<h2>Tambah Siswa</h2>
-<form method="POST" action="">
-    <input type="text" name="nama_siswa" placeholder="Nama Siswa"><br>
-    <input type="text" name="kelas" placeholder="Kelas"><br>
-    <input type="text" name="jurusan" placeholder="Jurusan"><br>
-    <input type="text" name="tanggal_lahir" placeholder="Tanggal Lahir"><br>
-    <input type="text" name="tempat_lahir" placeholder="Tempat Lahir"><br>
-    <input type="text" name="agama" placeholder="Agama"><br>
-    <textarea name="alamat" placeholder="Alamat"></textarea><br>
-    <button type="submit" name="submit">Tambah Siswa</button>
-</form>
-
 <?php
-if (isset($_POST['nama_siswa'])) {
-    $nama_siswa = $_POST['nama_siswa'];
-    $kelas = $_POST['kelas'];
-    $jurusan = $_POST['jurusan'];
-    $tanggal_lahir = $_POST['tanggal_lahir'];
-    $tempat_lahir = $_POST['tempat_lahir'];
-    $agama = $_POST['agama'];
-    $almat = $_POST['alamat'];
+session_start(); // Mulai session
+include 'config.php'; // Koneksi database
 
-    $sql = "INSERT INTO users (, kelas, jurusan, tanggal_lahir, tempat_lahir, agama, alamat)
-            VALUES ('$nama_siswa', '$kelas', '$jurusan', '$tanggal_lahir', '$tempat_lahir', '$agama', '$alamat')";
-    if ($conn->query($sql) === TRUE) {
-        echo "Data siswa berhasil ditambahkan.";
-        header("Location: index.php");
-    }else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
-    }
+// Cek apakah pengguna sudah login dan memiliki role admin
+if (!isset($_SESSION['username']) || $_SESSION['role'] != 'admin') {
+    header("Location: index.php"); // Jika tidak login atau bukan admin, arahkan ke halaman login
+    exit();
 }
+
+// Mengambil data buku dan user
+$buku_result = $conn->query("SELECT * FROM buku");
+$user_result = $conn->query("SELECT * FROM users");
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="admin.css">
+    <title>Admin Panel</title>
+</head>
+<body>
+    <h1>Admin Panel</h1>
+    <p>Welcome, <?= $_SESSION['username']; ?>! <a href="logout.php">Logout</a></p>
+    
+    <!-- CRUD Buku -->
+    <h2>Daftar Buku</h2>
+    <a href="create_buku.php">Tambah Buku</a>
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Judul</th>
+                <th>Penerbit</th>
+                <th>Pengarang</th>
+                <th>Tahun</th>
+                <th>Cover</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($row = $buku_result->fetch_assoc()) { ?>
+                <tr>
+                    <td><?= $row['id'] ?></td>
+                    <td><?= $row['judul'] ?></td>
+                    <td><?= $row['penerbit'] ?></td>
+                    <td><?= $row['pengarang'] ?></td>
+                    <td><?= $row['tahun'] ?></td>
+                    <td><img src="uploads/<?= $row['cover'] ?>" alt="Cover" width="100"></td>
+                    <td>
+                        <a href="update_buku.php?id=<?= $row['id'] ?>">Edit</a> |
+                        <a href="delete_buku.php?id=<?= $row['id'] ?>" onclick="return confirm('Hapus data ini?')">Hapus</a>
+                    </td>
+                </tr>
+            <?php } ?>
+        </tbody>
+    </table>
+
+    <!-- CRUD User -->
+    <h2>Daftar User</h2>
+    <a href="create_user.php">Tambah User</a>
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($row = $user_result->fetch_assoc()) { ?>
+                <tr>
+                    <td><?= $row['id'] ?></td>
+                    <td><?= $row['username'] ?></td>
+                    <td><?= $row['email'] ?></td>
+                    <td><?= $row['role'] ?></td>
+                    <td>
+                        <a href="edit_user.php?id=<?= $row['id'] ?>">Edit</a> |
+                        <a href="delete_user.php?id=<?= $row['id'] ?>" onclick="return confirm('Hapus data ini?')">Hapus</a>
+                    </td>
+                </tr>
+            <?php } ?>
+        </tbody>
+    </table>
+</body>
+</html>
