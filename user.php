@@ -1,29 +1,47 @@
 <?php
-session_start();
- 
-if (!isset($_SESSION['username'])) {
-    header("Location: index.php");
-    exit(); // Terminate script execution after the redirect
-}
+include 'db.php'; // Koneksi database
+
+$result = $conn->query("SELECT * FROM buku");
 ?>
- 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <title>Login berhasil!</title>
+    <title>Daftar Buku</title>
 </head>
 <body>
-    <div class="container-logout">
-        <form action="logout.php" method="POST" class="login-email">
-            <h1>Selamat datang <?php echo $_SESSION['username']; ?>!</h1>
-            <div class="input-group">
-                <button type="submit" class="btn">Logout</button>
-            </div>
-        </form>
-    </div>
+    <h1>Daftar Buku</h1>
+    <a href="create.php">Tambah Buku</a>
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Judul</th>
+                <th>Penerbit</th>
+                <th>Pengarang</th>
+                <th>Tahun</th>
+                <th>Cover</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($row = $result->fetch_assoc()) { ?>
+                <tr>
+                    <td><?= $row['id'] ?></td>
+                    <td><?= $row['judul'] ?></td>
+                    <td><?= $row['penerbit'] ?></td>
+                    <td><?= $row['pengarang'] ?></td>
+                    <td><?= $row['tahun'] ?></td>
+                    <td><img src="uploads/<?= $row['cover'] ?>" alt="Cover" width="100"></td>
+                    <td>
+                        <a href="update.php?id=<?= $row['id'] ?>">Edit</a> |
+                        <a href="delete.php?id=<?= $row['id'] ?>" onclick="return confirm('Hapus data ini?')">Hapus</a>
+                    </td>
+                </tr>
+            <?php } ?>
+        </tbody>
+    </table>
 </body>
 </html>
