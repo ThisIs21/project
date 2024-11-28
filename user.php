@@ -14,7 +14,7 @@ $result = $conn->query("SELECT * FROM buku");
 </head>
 <body>
     <h1>Daftar Lagu</h1>
-    <a href="create_buku.php" >Tambah Lagu</a>
+    <a class="nav-link" href="logout.php">Logout</a>
     <table border="1" cellpadding="10">
         <thead>
             <tr>
@@ -24,8 +24,7 @@ $result = $conn->query("SELECT * FROM buku");
                 <th>Penulis</th>
                 <th>Tanggal Rilis</th>
                 <th>Cover</th>
-                <th>Aksi</th>
-               
+                
             </tr>
         </thead>
         <tbody>
@@ -37,10 +36,6 @@ $result = $conn->query("SELECT * FROM buku");
                     <td><?= $row['pengarang'] ?></td>
                     <td><?= $row['tahun'] ?></td>
                     <td><img src="uploads/<?= $row['cover'] ?>" alt="Cover" width="100"></td>
-                    <td>
-                        <a href="edit_song.php?id=<?= $row['id'] ?>">Edit</a> |
-                        <a href="delete_song.php?id=<?= $row['id'] ?>" onclick="return confirm('Hapus data ini?')">Hapus</a>
-                    </td>
                   
                 </tr>
             <?php } ?>

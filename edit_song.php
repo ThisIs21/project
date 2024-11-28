@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sql = "UPDATE buku SET judul = '$judul', penerbit = '$penerbit', pengarang = '$pengarang', tahun = '$tahun', cover = '$cover' WHERE id = $id";
 
     if ($conn->query($sql) === TRUE) {
-        header("Location: user.php");
+        header("Location: buku.php");
         exit();
     } else {
         echo "Error: " . $conn->error;

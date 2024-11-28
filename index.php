@@ -20,7 +20,7 @@ if (isset($_POST['submit'])) {
     $sql = "SELECT * FROM users WHERE username='$username' AND password='$password'";
     $result = mysqli_query($conn, $sql);
 
-    if ($result && $result->num_rows > 0) {
+    if ($result && mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
         $_SESSION['username'] = $row['username'];
         $_SESSION['role'] = $row['role'];
@@ -28,10 +28,12 @@ if (isset($_POST['submit'])) {
         // Arahkan berdasarkan role
         if ($row['role'] == 'admin') {
             header("Location: admin.php");
-        } else {
+        } else if($row['role'] == 'user'){
             header("Location: user.php");
+        }else{
+        echo "<script>alert('role tidak tersedia!')</script>";
+
         }
-        exit();
     } else {
         echo "<script>alert('Username atau password Anda salah. Silakan coba lagi!')</script>";
     }
@@ -44,7 +46,7 @@ if (isset($_POST['submit'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="style.css">
-    <title>Tutorial Hostinger</title>
+    <title>Login</title>
 </head>
 <body>
     <div class="container">
@@ -59,7 +61,7 @@ if (isset($_POST['submit'])) {
             <div class="input-group">
                 <button name="submit" class="btn">Login</button>
             </div>
-            <p class="login-register-text">Selamat Datang <br> Website Perpustakaan Kami</a>.</p>
+            <p class="login-register-text">Selamat Datang di Website Perpustakaan Kami</p>
         </form>
     </div>
 </body>

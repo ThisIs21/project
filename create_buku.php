@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             VALUES ('$judul', '$penerbit', '$pengarang', '$tahun', '$cover')";
 
     if ($conn->query($sql) === TRUE) {
-        header("Location: user.php");
+        header("Location: admin.php");
         exit();
     } else {
         echo "Error: " . $conn->error;

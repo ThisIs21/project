@@ -1,90 +1,134 @@
 <?php
-session_start(); // Mulai session
-include 'config.php'; // Koneksi database
+session_start();
+include 'config.php';
 
-// Cek apakah pengguna sudah login dan memiliki role admin
+// Cek apakah pengguna login sebagai admin
 if (!isset($_SESSION['username']) || $_SESSION['role'] != 'admin') {
-    header("Location: index.php"); // Jika tidak login atau bukan admin, arahkan ke halaman login
+    header("Location: index.php");
     exit();
 }
 
-// Mengambil data buku dan user
-$buku_result = $conn->query("SELECT * FROM buku");
-$user_result = $conn->query("SELECT * FROM users");
-?>
+// Ambil data user dan buku
+$users = $conn->query("SELECT * FROM users");
+$buku = $conn->query("SELECT * FROM buku");
 
+if (!$users || !$buku) {
+    die("Query gagal: " . $conn->error);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="admin.css">
     <title>Admin Panel</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Admin Panel</h1>
-    <p>Welcome, <?= $_SESSION['username']; ?>! <a href="logout.php">Logout</a></p>
-    
-    <!-- CRUD Buku -->
-    <h2>Daftar Buku</h2>
-    <a href="create_buku.php">Tambah Buku</a>
-    <table border="1" cellpadding="10">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Judul</th>
-                <th>Penerbit</th>
-                <th>Pengarang</th>
-                <th>Tahun</th>
-                <th>Cover</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($row = $buku_result->fetch_assoc()) { ?>
-                <tr>
-                    <td><?= $row['id'] ?></td>
-                    <td><?= $row['judul'] ?></td>
-                    <td><?= $row['penerbit'] ?></td>
-                    <td><?= $row['pengarang'] ?></td>
-                    <td><?= $row['tahun'] ?></td>
-                    <td><img src="uploads/<?= $row['cover'] ?>" alt="Cover" width="100"></td>
-                    <td>
-                        <a href="update_buku.php?id=<?= $row['id'] ?>">Edit</a> |
-                        <a href="delete_buku.php?id=<?= $row['id'] ?>" onclick="return confirm('Hapus data ini?')">Hapus</a>
-                    </td>
-                </tr>
-            <?php } ?>
-        </tbody>
-    </table>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Admin Panel</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.php">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <!-- CRUD User -->
-    <h2>Daftar User</h2>
-    <a href="create_user.php">Tambah User</a>
-    <table border="1" cellpadding="10">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($row = $user_result->fetch_assoc()) { ?>
-                <tr>
-                    <td><?= $row['id'] ?></td>
-                    <td><?= $row['username'] ?></td>
-                    <td><?= $row['email'] ?></td>
-                    <td><?= $row['role'] ?></td>
-                    <td>
-                        <a href="edit_user.php?id=<?= $row['id'] ?>">Edit</a> |
-                        <a href="delete_user.php?id=<?= $row['id'] ?>" onclick="return confirm('Hapus data ini?')">Hapus</a>
-                    </td>
-                </tr>
-            <?php } ?>
-        </tbody>
-    </table>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Admin Panel</h1>
+        <p class="text-end">Selamat datang, <strong><?= htmlspecialchars($_SESSION['username']); ?></strong>!</p>
+
+        <!-- Manajemen User -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2>Manajemen User</h2>
+            </div>
+            <div class="card-body">
+                <a href="create_user.php" class="btn btn-success mb-3">Tambah User</a>
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($user = $users->fetch_assoc()) { ?>
+                            <tr>
+                                <td><?= htmlspecialchars($user['id']); ?></td>
+                                <td><?= htmlspecialchars($user['username']); ?></td>
+                                <td><?= htmlspecialchars($user['email']); ?></td>
+                                <td><?= htmlspecialchars($user['role']); ?></td>
+                                <td>
+                                    <a href="edit_user.php?id=<?= $user['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="delete_user.php?id=<?= $user['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus user ini?')">Hapus</a>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Manajemen Buku -->
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h2>Manajemen Buku</h2>
+            </div>
+            <div class="card-body">
+                <a href="create_buku.php" class="btn btn-success mb-3">Tambah Buku</a>
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Judul</th>
+                            <th>Penerbit</th>
+                            <th>Pengarang</th>
+                            <th>Tahun</th>
+                            <th>Cover</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($book = $buku->fetch_assoc()) { ?>
+                            <tr>
+                                <td><?= htmlspecialchars($book['id']); ?></td>
+                                <td><?= htmlspecialchars($book['judul']); ?></td>
+                                <td><?= htmlspecialchars($book['penerbit']); ?></td>
+                                <td><?= htmlspecialchars($book['pengarang']); ?></td>
+                                <td><?= htmlspecialchars($book['tahun']); ?></td>
+                                <td>
+                                    <?php if (!empty($book['cover'])) { ?>
+                                        <img src="uploads/<?= htmlspecialchars($book['cover']); ?>" alt="Cover" class="img-thumbnail" width="50">
+                                    <?php } else { ?>
+                                        Tidak ada cover
+                                    <?php } ?>
+                                </td>
+                                <td>
+                                    <a href="edit_song.php?id=<?= $book['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="delete_song.php?id=<?= $book['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus buku ini?')">Hapus</a>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
